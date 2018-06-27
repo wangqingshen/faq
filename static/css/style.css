@@ -1,5 +1,5 @@
 * {margin:0;padding:0;border:0;-webkit-user-select:text; color:#000; /*font-family:'微软雅黑';*/ outline:none; word-break:break-all; word-wrap:break-word; word-break:normal;}
-body, html, #app {background-color: #fff !important; height: 100%}
+body, html, #app {background-color: #f7f7f7 !important; height: 100%}
 input::-webkit-input-placeholder{color:#cccccc;}
 input::-moz-placeholder{/* Mozilla Firefox 19+ */color:#cccccc;}
 input:-moz-placeholder{/* Mozilla Firefox 4 to 18 */color:#cccccc;}

@@ -9,6 +9,7 @@ import Home from './components/Question'
 import Answer from './components/Answer'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import $ from 'jquery'
 
 Vue.use(VueRouter)
 Vue.prototype.$http = axios;

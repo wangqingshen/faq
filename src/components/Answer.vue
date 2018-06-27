@@ -1,13 +1,13 @@
 <template>
   <div style="height: 100%">
     <x-header :left-options="{backText: ''}">问答详情</x-header>
-    <group>
-      <cell :title="title" value="">
+    <group style="height: calc(100% - 56px);background:#fff;" class="detailWrap">
+      <cell :title="title" value="" class="title" style=" padding: 15px;">
         <img slot="icon" width="20" style="display:block;margin-right:5px;" src="../../static/images/question.jpg">
       </cell>
-      <cell-box>
-        cell-box hello world hello world hello world
-      </cell-box>
+      <cell :title="content" value="" class="content" style=" padding: 15px;align-items: end;">
+        <img slot="icon" width="20" style="display:block;margin-right:5px;" src="../../static/images/answer.jpg">
+      </cell>
     </group>
   </div>
 </template>
@@ -48,6 +48,7 @@ export default {
         "faq_type_name": "账户管理"
       }],
       title: '可以使用哪些支付方式',
+      content: '在很多网站上都可以看到FAQ，列出了一些用户常见的问题，是一种在线帮助形式。在利用一些网站的功能或者服务时往往会遇到一些看似很简单，但不经过说明可能很难搞清楚的问题，有时甚至会因为这些细节问题的影响而失去用户，其实在很多情况下，只要经过简单的解释就可以解决这些问题，这就是FAQ的价值',
       index: 0,
       selectedId: '1',
       lists: [{question: '如何获取积分？', 'faq_id': '1'}, {question: '如何查询交易记录？', 'faq_id': '2'}, {question: '订单被取消了怎么办？', 'faq_id': '3'}, {question: '如何使用支付方式', 'faq_id': '4'},{question: '忘记密码怎么办？', 'faq_id': '5'}],
@@ -63,11 +64,20 @@ export default {
 </script>
 
 <style>
-.vux-demo {
-  text-align: center;
+.title {
+  border-bottom: 1px solid #e6e6e6;
 }
-.logo {
-  width: 100px;
-  height: 100px
+.title label.vux-label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: 5px;
 }
+.content label.vux-label {
+  color: #666;
+  margin-left: 5px;
+}
+.detailWrap .weui-cells:before, .detailWrap .weui-cells:after, .detailWrap .weui-cell:before {
+  display: none;
+}
+
 </style>

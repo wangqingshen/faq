@@ -4,6 +4,7 @@ const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
 const vuxLoader = require('vux-loader')
+const webpack = require('webpack')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -28,6 +29,13 @@ let webpackConfig = {
       '@': resolve('src'),
     }
   },
+  plugins: [  
+    new webpack.ProvidePlugin({  
+      $:"jquery",  
+      jQuery:"jquery",  
+      "windows.jQuery":"jquery"  
+    })  
+  ],
   module: {
     rules: [
       {
