@@ -13,52 +13,48 @@
 </template>
 
 <script>
-import { XHeader, Group, Cell, Tab, TabItem, Sticky, Divider, XButton, Swiper, SwiperItem, CellBox} from 'vux'
+import { XHeader, Group, Cell} from 'vux'
 
 export default {
   components: {
     XHeader,
     Group,
-    Cell,
-    Tab,
-    TabItem,
-    Sticky,
-    Divider,
-    XButton,
-    Swiper,
-    SwiperItem,
-    CellBox
+    Cell
   },
   data () {
     return {
-      navList: [{
-        "faq_type_id": "1",
-        "faq_type_name": "猜你要问"
-      },{
-        "faq_type_id": "2",
-        "faq_type_name": "购买需要"
-      },{
-        "faq_type_id": "3",
-        "faq_type_name": "海关问题"
-      },{
-        "faq_type_id": "4",
-        "faq_type_name": "税金"
-      },{
-        "faq_type_id": "5",
-        "faq_type_name": "账户管理"
-      }],
-      title: '可以使用哪些支付方式',
-      content: '在很多网站上都可以看到FAQ，列出了一些用户常见的问题，是一种在线帮助形式。在利用一些网站的功能或者服务时往往会遇到一些看似很简单，但不经过说明可能很难搞清楚的问题，有时甚至会因为这些细节问题的影响而失去用户，其实在很多情况下，只要经过简单的解释就可以解决这些问题，这就是FAQ的价值',
-      index: 0,
-      selectedId: '1',
-      lists: [{question: '如何获取积分？', 'faq_id': '1'}, {question: '如何查询交易记录？', 'faq_id': '2'}, {question: '订单被取消了怎么办？', 'faq_id': '3'}, {question: '如何使用支付方式', 'faq_id': '4'},{question: '忘记密码怎么办？', 'faq_id': '5'}],
-      page: 1,
-      pagesize:10,
-      currentPage: 1,
+      apiurl: 'api',
+      id: localStorage.getItem('fid'),
+      title: '',
+      content: '',
     }
   },
+  mounted () {
+    this.getinfo()
+  },
   methods: {
-
+    getinfo () {
+      let d = {
+        'faq_id': this.id
+      },
+      that = this;
+      $.ajax({  
+        url : this.apiurl,  
+        type : 'post',  
+        data : this.mergeInfo('get_faq_info', d),
+        dataType : 'json',  
+        success : function(data) {  
+          if(data.errcode == 1) {
+            let info = data.data;
+            that.title = info.question;
+            that.content = info.answer;
+          }
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      })
+    }
   }
 }
 </script>

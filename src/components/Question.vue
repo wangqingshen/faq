@@ -8,15 +8,16 @@
       <group>
         <cell v-for="(list, i) in lists" :title="list.question" value="" is-link :key="i" style="padding: 15px;" @click.native="detailEvt(list.faq_id)"></cell>
       </group>
+     <!--  <div v-if="!lists.length">{{nodata}}</div> -->
       <div slot="pulldown" class="xs-plugin-pulldown-container xs-plugin-pulldown-down" style="position: absolute; width: 100%; height: 60px; line-height: 60px; top: -60px; text-align: center;">
         <span v-show="status.pulldownStatus === 'default'"></span>
-        <span class="pulldown-arrow" v-show="status.pulldownStatus === 'down' || status.pulldownStatus === 'up'" :class="{'rotate': status.pulldownStatus === 'up'}" style="font-size: 13px;color: #7c7c7c;">下拉可以刷新</span>
-        <span v-show="status.pulldownStatus === 'loading'" style="font-size: 13px;color: #7c7c7c;"><spinner type="ios-small"></spinner>刷新中...</span>
+        <span class="pulldown-arrow" v-show="status.pulldownStatus === 'down' || status.pulldownStatus === 'up'" :class="{'rotate': status.pulldownStatus === 'up'}" style="font-size: 13px;color: #7c7c7c;position: relative;padding-left: 23px;"><img src="../../static/images/ico_down.png" class="loading"/>下拉可以刷新</span>
+        <span v-show="status.pulldownStatus === 'loading'" style="font-size: 13px;color: #7c7c7c;position: relative;padding-left: 23px;"><img src="../../static/images/loading.gif" class="loading"/>刷新中...</span>
       </div>
       <div slot="pullup" class="xs-plugin-pullup-container xs-plugin-pullup-up" style="position: absolute; width: 100%; height: 40px; bottom: -40px; text-align: center;">
         <span v-show="status.pullupStatus === 'default'"></span>
         <span class="pullup-arrow" v-show="status.pullupStatus === 'default' || status.pullupStatus === 'up' || status.pullupStatus === 'down'" :class="{'rotate': status.pullupStatus === 'down'}" style="font-size: 13px;color: #7c7c7c;">上拉加载更多</span>
-        <span v-show="status.pullupStatus === 'loading'" style="font-size: 13px;color: #7c7c7c;"><spinner type="ios-small"></spinner>加载中...</span>
+        <span v-show="status.pullupStatus === 'loading'" style="font-size: 13px;color: #7c7c7c;position: relative;padding-left: 23px;"><img src="../../static/images/loading.gif" class="loading" />加载中...</span>
       </div>
     </scroller>
    <!--  <swiper v-model="index" :show-dots="false">
@@ -49,25 +50,10 @@ export default {
   },
   data () {
     return {
-      navList: [{
-        "faq_type_id": "1",
-        "faq_type_name": "猜你要问"
-      },{
-        "faq_type_id": "2",
-        "faq_type_name": "购买需要"
-      },{
-        "faq_type_id": "3",
-        "faq_type_name": "海关问题"
-      },{
-        "faq_type_id": "4",
-        "faq_type_name": "税金"
-      },{
-        "faq_type_id": "5",
-        "faq_type_name": "账户管理"
-      },],
+      navList: [],
       index: 0,
       selectedId: '1',
-      lists: [{question: '如何获取积分？', 'faq_id': '1'}, {question: '如何查询交易记录？', 'faq_id': '2'}, {question: '订单被取消了怎么办？', 'faq_id': '3'}, {question: '如何使用支付方式', 'faq_id': '4'},{question: '忘记密码怎么办？', 'faq_id': '5'},{question: '如何获取积分？', 'faq_id': '1'}, {question: '如何查询交易记录？', 'faq_id': '2'}, {question: '订单被取消了怎么办？', 'faq_id': '3'}, {question: '如何使用支付方式', 'faq_id': '4'},{question: '忘记密码怎么办？', 'faq_id': '5'}],
+      lists: [],
       page: 1,
       pagesize:10,
       currentPage: 1,
@@ -77,7 +63,8 @@ export default {
         pullupStatus: 'default',
         pulldownStatus: 'default'
       },
-      curType: '',
+      apiurl: 'api',
+      nodata: '暂无问题',
       pulldownConfig: {
         content: '下拉可以刷新',
         downContent: '下拉可以刷新',
@@ -89,60 +76,99 @@ export default {
         // downContent: '松开进行加载',
         // upContent: '上拉加载更多',
         // loadingContent: '加载中...'
-      }
+      },
+      compeleted: false,
     }
   },
 
   mounted() {
-    this.getTabWidth();
+    this.getFaqType();
   },
 
   methods: {
     // 下拉刷新
     refresh () {
-      setTimeout(() => {
-        // this.status.pulldownStatus = 'default'
-      }, 1000)
+      this.lists = [];
+      this.currentPage = 1;
+      this.getList();
     },
 
     // 加载更多
     loadMore () {
-      setTimeout(() => {
-        this.n += 10
-        setTimeout(() => {
-         this.status.pullupStatus = 'default'
-        }, 10)
-        if (this.n === 30) { // unload plugin
-          setTimeout(() => {
-            this.status.pullupStatus = 'disabled'
-          }, 100)
-        }
-      }, 2000)
+      this.currentPage++;
+      this.getList();
     },
 
     // 计算tab宽度
     getTabWidth () {
-      let width = ($('.vux-tab .vux-tab-item').length - 1)*15
-      $('.vux-tab .vux-tab-item').each(function(i,item){
-        let w = $(item).outerWidth();
-        width += w;
-      })
-      $('.vux-tab').css('width', width);
-    },
-
-    // 获取
-    getScollerH () {
-
+      let timer = setInterval(res=>{
+        if(this.compeleted) {
+          clearInterval(timer);
+          let width = ($('.vux-tab .vux-tab-item').length - 1)*15+5;
+          $('.vux-tab .vux-tab-item').each(function(i,item){
+            let w = $(item).outerWidth();
+            width += w;
+          })
+          $('.vux-tab').css('width', width);
+        }
+      },200)
     },
 
     // 获取faq问题类型
     getFaqType () {
-
+      let that = this;
+      $.ajax({  
+        url : this.apiurl,  
+        type : 'post',  
+        data : this.mergeInfo('get_faq_type', ''),
+        dataType : 'json',  
+        success : function(data) {  
+          if(data.errcode == 1) {
+            that.compeleted = true;
+            that.navList = data.data.list;
+            that.selectedId = data.data.list[0].faq_type_id;
+            that.getList();
+            that.getTabWidth();
+          }
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      })
     },
 
     // 获取当前类型下的问题列表
     getList () {
-
+      let that = this;
+      let d = {
+        'faq_type_id': this.selectedId,
+        'page': this.currentPage,
+        'page_size': this.pagesize
+      };
+      $.ajax({  
+        url : this.apiurl,  
+        type : 'post',  
+        data : this.mergeInfo('get_faq_list', d),
+        dataType : 'json',  
+        success : function(data) {  
+          if(data.errcode == 1) {
+            let list = data.data.list;
+            if(list.length) {
+              for(var i in list) {
+                let obj = list[i];
+                that.lists.push(obj);
+              }
+              that.status.pullupStatus = 'default'
+            }else{
+              that.status.pullupStatus = 'disabled'
+            }
+            that.status.pulldownStatus = 'default'
+          }
+        },
+        error: function(data) {
+          console.log(data);
+        }
+      })
     },
 
     // 跳转至详情页面
@@ -157,11 +183,19 @@ export default {
     tabChange (id) {
       if(this.selectedId == id) return;
       this.selectedId = id;
+      this.currentPage = 1;
+      this.lists = [];
+      this.getList();
     }
   }
 }
 </script>
 
 <style>
-
+.loading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+}
 </style>
