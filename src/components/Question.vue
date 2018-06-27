@@ -4,11 +4,20 @@
     <tab :line-width=2 active-color='#fe6d4c' v-model="index">
         <tab-item class="vux-center" :selected="selectedId == item.faq_type_id" v-for="(item, index) in navList" @on-item-click="tabChange(item.faq_type_id)" :key="index" >{{item.faq_type_name}}</tab-item>
     </tab>
-    <scroller lock-x scrollbarY="false" scrollbar-y use-pullup use-pulldown height="-111" :pulldown-config="pulldownConfig" :pullup-config="pullupConfig" @on-pullup-loading="loadMore" @on-pulldown-loading="refresh" v-model="status" ref="scroller" class="scrollerWrap">
+    <scroller lock-x scrollbar-y use-pullup use-pulldown height="-111" @on-pullup-loading="loadMore" @on-pulldown-loading="refresh" v-model="status" ref="scroller" class="scrollerWrap">
       <group>
         <cell v-for="(list, i) in lists" :title="list.question" value="" is-link :key="i" style="padding: 15px;" @click.native="detailEvt(list.faq_id)"></cell>
       </group>
-      
+      <div slot="pulldown" class="xs-plugin-pulldown-container xs-plugin-pulldown-down" style="position: absolute; width: 100%; height: 60px; line-height: 60px; top: -60px; text-align: center;">
+        <span v-show="status.pulldownStatus === 'default'"></span>
+        <span class="pulldown-arrow" v-show="status.pulldownStatus === 'down' || status.pulldownStatus === 'up'" :class="{'rotate': status.pulldownStatus === 'up'}" style="font-size: 13px;color: #7c7c7c;">下拉可以刷新</span>
+        <span v-show="status.pulldownStatus === 'loading'" style="font-size: 13px;color: #7c7c7c;"><spinner type="ios-small"></spinner>刷新中...</span>
+      </div>
+      <div slot="pullup" class="xs-plugin-pullup-container xs-plugin-pullup-up" style="position: absolute; width: 100%; height: 40px; bottom: -40px; text-align: center;">
+        <span v-show="status.pullupStatus === 'default'"></span>
+        <span class="pullup-arrow" v-show="status.pullupStatus === 'default' || status.pullupStatus === 'up' || status.pullupStatus === 'down'" :class="{'rotate': status.pullupStatus === 'down'}" style="font-size: 13px;color: #7c7c7c;">上拉加载更多</span>
+        <span v-show="status.pullupStatus === 'loading'" style="font-size: 13px;color: #7c7c7c;"><spinner type="ios-small"></spinner>加载中...</span>
+      </div>
     </scroller>
    <!--  <swiper v-model="index" :show-dots="false">
         <swiper-item v-for="(item, index) in navList" :key="index">
@@ -76,10 +85,10 @@ export default {
         loadingContent: '刷新中...'
       },
       pullupConfig: {
-        content: '上拉加载更多',
-        downContent: '松开进行加载',
-        upContent: '上拉加载更多',
-        loadingContent: '加载中...'
+        // content: '上拉加载更多',
+        // downContent: '松开进行加载',
+        // upContent: '上拉加载更多',
+        // loadingContent: '加载中...'
       }
     }
   },
@@ -92,7 +101,7 @@ export default {
     // 下拉刷新
     refresh () {
       setTimeout(() => {
-        this.status.pulldownStatus = 'default'
+        // this.status.pulldownStatus = 'default'
       }, 1000)
     },
 
