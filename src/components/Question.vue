@@ -54,10 +54,8 @@ export default {
       index: 0,
       selectedId: '1',
       lists: [],
-      page: 1,
       pagesize:10,
       currentPage: 1,
-      n: 10,
       pullupEnabled: true,
       status: {
         pullupStatus: 'default',
@@ -66,10 +64,10 @@ export default {
       apiurl: 'api',
       nodata: '暂无问题',
       pulldownConfig: {
-        content: '下拉可以刷新',
-        downContent: '下拉可以刷新',
-        upContent: '释放可刷新...',
-        loadingContent: '刷新中...'
+        // content: '下拉可以刷新',
+        // downContent: '下拉可以刷新',
+        // upContent: '释放可刷新...',
+        // loadingContent: '刷新中...'
       },
       pullupConfig: {
         // content: '上拉加载更多',
@@ -88,7 +86,6 @@ export default {
   methods: {
     // 下拉刷新
     refresh () {
-      this.lists = [];
       this.currentPage = 1;
       this.getList();
     },
@@ -152,6 +149,9 @@ export default {
         dataType : 'json',  
         success : function(data) {  
           if(data.errcode == 1) {
+            if(that.currentPage == 1) {
+              that.lists = [];
+            }
             let list = data.data.list;
             if(list.length) {
               for(var i in list) {
@@ -185,6 +185,7 @@ export default {
       this.selectedId = id;
       this.currentPage = 1;
       this.lists = [];
+      this.status.pullupStatus = 'default';
       this.getList();
     }
   }
