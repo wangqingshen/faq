@@ -23,7 +23,8 @@ export default {
   },
   data () {
     return {
-      apiurl: 'api',
+      // apiurl: 'api',
+      apiurl: 'https://apisdbtest.ihangou.com/api.php',
       id: localStorage.getItem('fid'),
       title: '',
       content: '',

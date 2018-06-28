@@ -66,7 +66,7 @@ Vue.prototype.mergeInfo = function(name, d){
 				"name": name
 			},
 			"data": d,
-			"version":"1.1.1"
+			"version":"1.1.1 "
 		};
 	return JSON.stringify(info);
 }

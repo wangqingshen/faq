@@ -4,11 +4,10 @@
     <tab :line-width=2 active-color='#fe6d4c' v-model="index">
         <tab-item class="vux-center" :selected="selectedId == item.faq_type_id" v-for="(item, index) in navList" @on-item-click="tabChange(item.faq_type_id)" :key="index" >{{item.faq_type_name}}</tab-item>
     </tab>
-    <scroller lock-x scrollbar-y use-pullup use-pulldown height="-111" @on-pullup-loading="loadMore" @on-pulldown-loading="refresh" v-model="status" ref="scroller" class="scrollerWrap">
+    <scroller v-if="lists.length" lock-x scrollbar-y use-pullup use-pulldown height="-111" @on-pullup-loading="loadMore" @on-pulldown-loading="refresh" v-model="status" ref="scroller" class="scrollerWrap">
       <group>
         <cell v-for="(list, i) in lists" :title="list.question" value="" is-link :key="i" style="padding: 15px;" @click.native="detailEvt(list.faq_id)"></cell>
       </group>
-     <!--  <div v-if="!lists.length">{{nodata}}</div> -->
       <div slot="pulldown" class="xs-plugin-pulldown-container xs-plugin-pulldown-down" style="position: absolute; width: 100%; height: 60px; line-height: 60px; top: -60px; text-align: center;">
         <span v-show="status.pulldownStatus === 'default'"></span>
         <span class="pulldown-arrow" v-show="status.pulldownStatus === 'down' || status.pulldownStatus === 'up'" :class="{'rotate': status.pulldownStatus === 'up'}" style="font-size: 13px;color: #7c7c7c;position: relative;padding-left: 23px;"><img src="../../static/images/ico_down.png" class="loading"/>下拉可以刷新</span>
@@ -20,6 +19,7 @@
         <span v-show="status.pullupStatus === 'loading'" style="font-size: 13px;color: #7c7c7c;position: relative;padding-left: 23px;"><img src="../../static/images/loading.gif" class="loading" />加载中...</span>
       </div>
     </scroller>
+    <div class="nodata" v-if="!lists.length" style="height: calc(100% - 112px);">{{nodata}}</div>
    <!--  <swiper v-model="index" :show-dots="false">
         <swiper-item v-for="(item, index) in navList" :key="index">
           <div class="tab-swiper vux-center">
@@ -27,13 +27,19 @@
           </div>
         </swiper-item>
     </swiper> -->
+    <div v-transfer-dom>
+      <loading :show="loadingState" text="数据加载中"></loading>
+    </div>
   </div>
 </template>
 
 <script>
-import { XHeader, Group, Cell, Tab, TabItem, Sticky, Divider, XButton, Swiper, SwiperItem, Scroller, Spinner } from 'vux'
+import { XHeader, Group, Cell, Tab, TabItem, Sticky, Divider, XButton, Swiper, SwiperItem, Scroller, Spinner, Loading, TransferDomDirective as TransferDom} from 'vux'
 
 export default {
+  directives: {
+    TransferDom
+  },
   components: {
     XHeader,
     Group,
@@ -46,7 +52,8 @@ export default {
     Swiper,
     SwiperItem,
     Scroller,
-    Spinner
+    Spinner,
+    Loading
   },
   data () {
     return {
@@ -61,8 +68,9 @@ export default {
         pullupStatus: 'default',
         pulldownStatus: 'default'
       },
-      apiurl: 'api',
-      nodata: '暂无问题',
+      // apiurl: 'api',
+      apiurl: 'https://apisdbtest.ihangou.com/api.php',
+      nodata: '',
       pulldownConfig: {
         // content: '下拉可以刷新',
         // downContent: '下拉可以刷新',
@@ -76,6 +84,7 @@ export default {
         // loadingContent: '加载中...'
       },
       compeleted: false,
+      loadingState: true,
     }
   },
 
@@ -158,11 +167,13 @@ export default {
                 let obj = list[i];
                 that.lists.push(obj);
               }
-              that.status.pullupStatus = 'default'
             }else{
-              that.status.pullupStatus = 'disabled'
+              that.nodata = '暂无数据信息';
+              // that.status.pullupStatus = 'disabled'
             }
+            that.status.pullupStatus = 'default'
             that.status.pulldownStatus = 'default'
+            that.loadingState = false
           }
         },
         error: function(data) {
@@ -185,6 +196,8 @@ export default {
       this.selectedId = id;
       this.currentPage = 1;
       this.lists = [];
+      this.loadingState = true;
+      this.nodata= '';
       this.status.pullupStatus = 'default';
       this.getList();
     }
@@ -198,5 +211,9 @@ export default {
   left: 0;
   top: 0;
   width: 18px;
+}
+.weui-toast__content {
+  font-size: 13px;
+  color: #fff;
 }
 </style>
